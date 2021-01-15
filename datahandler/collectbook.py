@@ -1,6 +1,7 @@
 import json
 import requests
 import time
+import naverapi
 
 
 # Can be edited
@@ -49,19 +50,13 @@ keywords = [
 
 def query_and_save():
     url = "https://openapi.naver.com/v1/search/book.json?query="
-    apikey = ""  # Write your naver api key here
-    secret = ""  # Write your naver api secret key here
-    header = {
-        "X-Naver-Client-Id": apikey,
-        "X-Naver-Client-Secret": secret
-    }
 
     f = open('isbn.json', 'r')
     myisbn = json.load(f)
     f.close()
 
     for i in keywords:
-        res = requests.get(url + i + '&display=100', headers=header)
+        res = requests.get(url + i + '&display=100', headers=naverapi.header)
         resbody = json.loads(res.text)
         for j in resbody['items']:
             try:
