@@ -1,4 +1,4 @@
-Project WritingCrow Prototype Repository
-========================================
+Project WritingCrow Prototype data handling library
+===================================================
 
 Nothing to write about
