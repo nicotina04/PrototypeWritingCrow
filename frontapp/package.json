@@ -1,8 +1,8 @@
 {
-  "name": "whalenote_master_alpha",
+  "name": "writingcrow_alpha",
   "version": "0.0.1",
-  "description": "A quasar product of WhaleNote",
-  "productName": "WhaleNoteMaster",
+  "description": "A sample product of WritingCrow",
+  "productName": "WritingCrow",
   "author": "nicotina04",
   "private": true,
   "scripts": {
