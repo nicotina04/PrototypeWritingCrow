@@ -1,3 +1,5 @@
+frontapp/node_modules/*
+frontapp/dist
 isbn.json
 log.json
 interparkbookdb.json
