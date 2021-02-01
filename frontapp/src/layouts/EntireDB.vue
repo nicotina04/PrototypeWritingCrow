@@ -152,7 +152,7 @@ export default {
       for (const term in terms) {
         rows = rows.filter((row) => {
           if (term === 'id') {
-            return row.id.toLowerCase().indexOf((this.filter[term] + '').toLowerCase()) !== -1
+            return row.id.toLowerCase().indexOf(this.filter[term].toLowerCase()) !== -1
           } else if (term === 'category') {
             if (this.filter.category === null) {
               return true
@@ -171,7 +171,7 @@ export default {
           } else {
             const word = isbn[row.id]
             if (word === undefined) {
-              return false
+              return this.filter[term] === ''
             }
             return word[term].toLowerCase().indexOf((this.filter[term] + '').toLowerCase()) !== -1
           }
