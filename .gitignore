@@ -1,3 +1,6 @@
-*.json
+isbn.json
+log.json
+interparkbookdb.json
+interparkid.json
 *.xlsx
 *.xls
