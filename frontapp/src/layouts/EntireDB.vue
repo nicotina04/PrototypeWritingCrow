@@ -14,7 +14,6 @@
       :loading="loading"
       virtual-scroll
       :rows-per-page-options="[0]"
-      hide-pagination
     >
     <template v-slot:top-row>
       <q-tr>

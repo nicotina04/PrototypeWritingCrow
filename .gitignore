@@ -6,3 +6,10 @@ interparkbookdb.json
 interparkid.json
 *.xlsx
 *.xls
+
+# Editor
+.vscode
+.idea
+
+# pycache
+__pycache__

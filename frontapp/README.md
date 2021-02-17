@@ -1,6 +1,6 @@
-# WhaleNoteMaster (whalenote_master_alpha)
+# WritingCrow db page
 
-A quasar product of WhaleNote
+A prototype front page of WritingCrow
 
 ## Install the dependencies
 ```bash
