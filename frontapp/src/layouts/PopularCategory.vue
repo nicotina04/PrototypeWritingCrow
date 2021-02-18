@@ -4,20 +4,28 @@
       분야별 스캔 횟수 조회
     </q-banner>
     <div class="q-pa-md q-gutter-sm">
-      <q-btn flat color="primary" label="최근 24시간" @click="selectDay(1); caculateScanCount()"/>
-      <q-btn flat color="primary" label="최근 7일" @click="selectDay(7); caculateScanCount()"/>
-      <q-btn flat color="primary" label="최근 30일" @click="selectDay(30); caculateScanCount()"/>
+      <q-btn flat color="primary" label="최근 24시간" @click="selectDay(1)"/>
+      <q-btn flat color="primary" label="최근 7일" @click="selectDay(7)"/>
+      <q-btn flat color="primary" label="최근 30일" @click="selectDay(30)"/>
       <q-btn flat color="primary" label="날짜 지정하기">
         <q-tooltip content-class="bg-accent">시작 날짜와 종료 날짜 선택</q-tooltip>
         <q-popup-proxy @before-show="updateProxy" transition-show="scale" transition-hide="scale">
           <q-date v-model="proxyDate" range>
             <div class="row items-center justify-end q-gutter-sm">
-              <q-btn label="취소" color="primary" flat v-close-popup />
-              <q-btn label="확인" color="primary" flat @click="save(); caculateScanCount()" v-close-popup />
+              <q-btn label="취소" color="primary" flat v-close-popup/>
+              <q-btn label="확인" color="primary" flat @click="save()" v-close-popup />
             </div>
           </q-date>
         </q-popup-proxy>
       </q-btn>
+      <q-btn color="primary" label="기간 초기화" @click="resetDate()"/>
+      <q-btn color="primary" label="검색" @click="calculateCatCount()"/>
+      <div v-if="this.duration.from && this.duration.to">
+        기간: {{this.duration.from.getFullYear() + ":" + (this.duration.from.getMonth() + 1) + ":" + this.duration.from.getDate()}} ~ {{this.duration.to.getFullYear() + ":" + (this.duration.to.getMonth() + 1) + ":" + this.duration.to.getDate()}}
+      </div>
+      <div v-else>
+        기간 설정이 되지 않았습니다.
+      </div>
       <q-select
         clearable
         :options="categoryoptions"
@@ -25,7 +33,6 @@
         emit-value
         map-options
         v-model="category"
-        @click="caculateScanCount()"
       >
       </q-select>
     </div>
@@ -110,6 +117,12 @@ export default {
       this.proxyDate = this.dateRange
     },
 
+    resetDate () {
+      this.duration = {}
+      this.proxyDate = {}
+      this.dateRange = {}
+    },
+
     save () {
       this.dateRange = this.proxyDate
       this.duration.from = new Date(this.dateRange.from)
@@ -117,56 +130,76 @@ export default {
     },
 
     selectDay (day) {
+      this.proxyDate = {}
       var now = new Date()
       this.duration.from = new Date(now.getTime() - (day * 24 * 60 * 60 * 1000))
       this.duration.to = now
     },
 
-    caculateScanCount () {
+    calculateCatCount () {
       this.scanCount = {}
       let filteredlog = goodscan
+
       if (this.category !== null) {
         filteredlog = filteredlog.filter((item) => {
           if (isbn[item.id] === undefined) {
             return false
           }
 
-          const tmp = Number(isbn[item.id].categoryId)
+          const catId = parseInt(this.category)
+          const tmp = parseInt(isbn[item.id].categoryId)
 
-          if (this.category === '100') {
+          if (catId === 100) {
             return tmp >= 100 && tmp < 200
-          } else if (this.category === '200') {
+          } else if (catId === 200) {
             return tmp >= 200 && tmp < 300
           } else {
-            return tmp === Number(this.category)
+            return tmp === catId
           }
         })
       }
+
       let l = 0
       let r = filteredlog.length - 1
       let idx
 
-      while (l <= r) {
-        const m = parseInt(l + (r - l) / 2)
+      if (this.duration.from !== undefined) {
+        while (l <= r) {
+          const m = parseInt(l + (r - l) / 2)
 
-        if (new Date(filteredlog[m].date) >= this.duration.from) {
-          idx = m
-          r = m - 1
-        } else {
-          l = m + 1
+          if (new Date(filteredlog[m].date) >= this.duration.from) {
+            idx = m
+            r = m - 1
+          } else {
+            l = m + 1
+          }
         }
+      } else {
+        idx = 0
       }
 
       if (idx !== undefined) {
         for (let i = idx; i < filteredlog.length; ++i) {
-          if (new Date(filteredlog[i].date) > this.duration.to) {
+          const booklog = filteredlog[i]
+          const idxisbn = booklog.id
+
+          if (new Date(booklog.date) > this.duration.to) {
             break
           }
 
-          if (this.scanCount[isbn[filteredlog[i].id].categoryId] === undefined) {
-            this.scanCount[isbn[filteredlog[i].id].categoryId] = 1
+          // 인터파크에 등록되지 않은 도서는 카테고리를 일괄 '000'으로 처리
+          if (isbn[idxisbn] === undefined) {
+            if (this.scanCount['000'] === undefined) {
+              this.scanCount['000'] = 1
+            } else {
+              ++this.scanCount['000']
+            }
           } else {
-            ++this.scanCount[isbn[filteredlog[i].id].categoryId]
+            if (this.scanCount[isbn[idxisbn].categoryId] === undefined) {
+              this.scanCount[isbn[idxisbn].categoryId] = 1
+            } else {
+              ++this.scanCount[isbn[idxisbn].categoryId]
+            }
           }
         }
       }
